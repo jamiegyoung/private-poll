@@ -2,6 +2,7 @@
 *.db
 conf.json
 sessions
+package-lock.json
 
 # Logs
 logs
