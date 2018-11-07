@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8' />
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Admin Login</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link href="https://fonts.googleapis.com/css?family=Permanent+Marker" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      height: 100vh;
+      background-color: #212121;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+      transition: all .5s ease-out;
+    }
+
+    .hide-background {
+      opacity: .5;
+      filter: blur(.5vw);
+    }
+
+    .noselect {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .login-container {
+      padding: 20px;
+      background-color: #252525;
+      -webkit-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+      -moz-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+      -ms-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+      -o-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+      width: 80%;
+      max-width: 520px;
+      margin: 20px;
+      border: solid 2px rgba(0, 0, 0, 0);
+      transition: border-color .5s ease-out;
+      border-radius: 10px;
+    }
+    .text-input {
+      border-radius: 5px;
+      background-color: #121212;
+      border: none;
+      color: white;
+      height: 40px;
+      padding-left: 5px;
+      margin-top: 5px;
+      width: 100%;
+      font-size: 2ch;
+    }
+
+    .incorrect-flash-border {
+      border-color: #d25a5a;
+    }
+    .incorrect-flash {
+      background-color: #d25a5a !important;
+    }
+
+    .submit-button {
+      font-size: 1.5ch;
+      font-weight: bold;
+      border-radius: 50px;
+      margin-top: 10px;
+      width: 200px;
+      border: none;
+      cursor: pointer;
+      height: 50px;
+      color: black;
+      /* background-color: #5ad274; */
+      background-color: #fff700;
+      transition: all .2s ease-out;
+      font-size: 2ch;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    }
+
+    .submit-button:hover {
+      /* background-color: #b6ffc6; */
+      background-color: #fffb84;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+    }
+
+    .title {
+      font-family: 'Permanent Marker', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 10ch;
+      font-weight: normal;
+      margin: 0;
+      color: #fff700;
+    }
+
+    .success-border {
+      border-color: #00ff43;
+    }
+
+    .success {
+      background-color: #00ff43 !important;
+    }
+
+    .loading-wrapper{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .hidden-opacity {
+      opacity: 0;
+    }
+
+    .loading {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background-color: #fff700;
+      opacity: 1;
+      animation: spin 1s infinite ease-in-out;
+      transition: all .2s ease-out;
+    }
+        
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(180deg);
+      }
+    }
+
+    .loading::before {
+      content: '';
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: yellow;
+      transform: translateY(50px);
+      opacity: .3;
+    }
+
+      .loading::after {
+      content: '';
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: yellow;
+      transform: translateY(-50px);
+      opacity: .3;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .title {
+          font-size: 15vw !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id='container' class="container">
+    <h1 class='title noselect'>Admin Login</h1>
+    <div class='login-container' id='login-container'>
+      <div style='margin-bottom: 40px;'>
+          <p class="noselect" style='margin: 0; font-weight: bold'>Username: </p>
+          <input id='username' type='text' class='text-input' />
+        </div>
+        <div style="margin-bottom: 15px;">
+          <p class="noselect" style='margin: 0; font-weight: bold'>Password: </p>
+          <input id='password' type='password' class='text-input' />
+        </div>
+      </div>
+      <input type='button' class='submit-button' id='submit-button' value='Login' onclick='requestLogin()'/>
+    </div>
+    <div class="loading-wrapper">
+      <div id='loading' class="loading hidden hidden-opacity"></div>
+    </div>
+  <script>
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+
+    usernameInput.addEventListener('keyup', (e) => {
+      e.preventDefault();
+      if (e.keyCode === 13) {
+        requestLogin();
+      }
+    })
+
+    passwordInput.addEventListener('keyup', (e) => {
+      e.preventDefault();
+      if (e.keyCode === 13) {
+        requestLogin();
+      }
+    })
+
+    const requestLogin = () => {
+      const loading = document.getElementById('loading')
+      loading.classList.remove('hidden');
+      setTimeout(() => {
+        loading.classList.remove('hidden-opacity');
+      }, 50);
+      const username = usernameInput.value;
+      const password = passwordInput.value;
+      document.getElementById('container').classList.add('hide-background');
+      fetch(`https://poll.jamieyoung.tech/admin/loginRequest?user=${username}&pass=${password}`)
+        .then(res => res.json())
+        .then(res => {
+          console.log(res);
+          if (res.error) {
+            loading.classList.add('hidden-opacity');
+            setTimeout(() => {
+              loading.classList.add('hidden');
+
+            }, 250);
+            loading.classList.add('hidden');
+            document.getElementById('container').classList.remove('hide-background');
+            document.getElementById('login-container').classList.add('incorrect-flash-border');
+            document.getElementById('submit-button').classList.add('incorrect-flash');
+            setTimeout(() => {
+              document.getElementById('login-container').classList.remove('incorrect-flash-border');  
+              document.getElementById('submit-button').classList.remove('incorrect-flash');
+            }, 1000);
+            return;
+          }
+          document.getElementById('submit-button').classList.add('success');
+          document.getElementById('login-container').classList.add('success-border');
+          setTimeout(() => {
+            window.location = '/admin/dashboard'
+          }, 1000);
+        })
+        .catch(err => { throw err; })
+    }
+</script>
+</body>
+</html>

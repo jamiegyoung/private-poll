@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Voting</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body, html {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #212121;
+      overflow: hidden;
+      color: white;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .radio-container {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .selection-button {
+      margin-right: 15px;
+    }
+
+    .shadow {
+      -webkit-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+      -moz-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+      -ms-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+      -o-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+    }
+
+    .submit-button {
+      border: none;
+      width: 100px;
+      height: 25px;
+      background-color: white;
+      transition: all .2s ease-out;
+    }
+
+    .submit-button:hover {
+      background-color: #eeeeee;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .sticky-note {
+      transition: transform 1s cubic-bezier(.71,-0.38,.41,1.32);
+      color: black;
+    }
+
+    .sticky-note-start {
+      transform: translateX(-100vw);
+    }
+
+    .sticky-note-hidden {
+      transform: translateX(100vw);
+    }
+
+    .message {
+      transition: opacity .2s ease-in-out;
+    }
+
+    .message-hidden {
+      opacity: 0;
+    }
+  </style>
+  <script>
+    const getChoices = async () => {
+      //Current poll requires admin details, make new api that requires no details
+      const currentPollRes = await fetch('https://poll.jamieyoung.tech/CurrentPollOptions').then(res => res.json()).catch(err => {throw err;} )
+      const parsedOptions = JSON.parse(currentPollRes.options);
+      
+      parsedOptions.main.forEach(option => {
+        appendRadioButton(option);
+      });
+
+      document.getElementById('sticky-note').classList.remove('sticky-note-start');
+
+      function appendRadioButton(text) {
+        const radioContainer = document.createElement('div');
+        radioContainer.classList.add('radio-container');
+        const radioButton = document.createElement('input');
+        radioButton.type = 'radio';
+        radioButton.classList.add('selection-button');
+        radioButton.name = 'vote';
+        const radioButtonText = document.createElement('p');
+        radioButtonText.innerText = text;
+        radioContainer.appendChild(radioButton);
+        radioContainer.appendChild(radioButtonText);
+        const fullContainer = document.getElementById('full-radio-container');
+        fullContainer.appendChild(radioContainer);
+      }
+    }
+
+    const submitVote = async () => {
+      const radioButtonCollection = document.getElementsByClassName('selection-button');
+      const radioButtonArray = Array.from(radioButtonCollection);
+      const selectionIndex = await getFirstSelected(radioButtonArray);
+      const sessionID = getSessionID();
+      const submitVoteRes = await fetch(`https://poll.jamieyoung.tech/submitVote/${sessionID}/${selectionIndex}`)
+      .then(res => res.json())
+      .catch(err => { throw err; })
+      if(submitVoteRes.success) {
+        document.getElementById('sticky-note').classList.add('sticky-note-hidden');
+        setTimeout(() => {
+          document.getElementById('sticky-note').classList.add('hidden');
+          document.getElementById('message').classList.remove('hidden');
+          setTimeout(() => {
+            document.getElementById('message').classList.remove('message-hidden');
+          }, 100);
+        }, 1000);
+      }
+    }
+
+    const getSessionID = () => {
+      url = window.location.href;
+      return url.substring(url.lastIndexOf('/') + 1, url.length);
+    }
+
+    const getFirstSelected = (radioButtonArray) => new Promise((res) => {
+      let index = 0;
+      radioButtonArray.forEach(element => {
+        if (element.checked) {
+          res(index);
+        }
+        index++;
+      });
+    });
+  </script>
+</head>
+<body onload="getChoices()">
+  <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <div id='sticky-note' class="shadow sticky-note sticky-note-start" style="background-color: yellow; width: auto; padding: 15px;">
+      <div style="border-bottom: 2px black dashed;">
+        <h1 style="margin: 10px 0 10px 50px;">Vote</h1>
+      </div>
+      <div id='full-radio-container' style="margin: 20px 0 0 50px; display: flex; flex-direction: column;">
+      </div>
+      <div style="margin: 10px 0 25px 0; display:flex; justify-content: center;">
+        <input type="button" value="Submit" class="submit-button" onclick="submitVote()"/>
+      </div>
+    </div>
+    <h1 id='message' class='message message-hidden hidden'>Thanks For Voting!</h1>
+  </div>
+</body>
+</html>

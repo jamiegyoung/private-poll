@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      height: 100vh;
+      background-color: #212121;
+      color: white;
+    }
+    .text {
+      transition: all .4s ease-in-out
+    }
+
+    .text-hidden {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .chart-container {
+      margin-top: 20px;
+      width: 70vw;
+      display: flex;
+      justify-content: center;
+    }
+
+    @media only screen and (max-width: 1000px) {
+      .chart-container {
+        flex-direction: column !important;
+        width: 90vw;
+      }
+      .chart {
+        margin-bottom: 30px
+      }
+    }
+  </style>
+</head>
+<body>
+  <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;">
+    <h1 class="text-hidden text" id="title">Poll Results</h1>
+    <div class="chart-container">
+      <canvas id="pie-chart" class='pie-chart chart'></canvas>
+      <!-- <canvas id="bar-chart" class='bar-chart chart'></canvas> -->
+    </div>
+  </div>
+  <script>
+  //TODO: Get labels and data and map them to arrays
+  const getSessionID = () => {
+    url = window.location.href;
+    return url.substring(url.lastIndexOf('/') + 1, url.length);
+  }
+
+  const pollID = getSessionID();
+
+  fetch('https://poll.jamieyoung.tech/GetVotes/' + pollID)
+  .catch(err => { throw err; })
+  .then(votesRes => votesRes.json())
+  .then(votesRes => {
+    var ctxPieChart = document.getElementById("pie-chart").getContext('2d');
+    // var ctxBarChart = document.getElementById("bar-chart").getContext('2d');
+    Chart.defaults.global.defaultFontColor = '#FFFFFF';
+    Chart.defaults.global.defaultFontSize = 16;
+    const colors = votesRes.options.map((value) => {
+      return getRandomColor();
+    })
+    var pieChart = new Chart(ctxPieChart, {
+      type: 'pie',
+      responsive: true,
+      options: {
+        rotation: Math.PI,
+        circumference: Math.PI,
+        animation: {
+          animateRotate: true,
+          animateScale: true
+        }
+      },
+      data: {
+        labels: votesRes.options,
+        datasets: [{
+          data: votesRes.votes,
+          backgroundColor: colors,
+          borderWidth: 0,
+        }]
+      },
+    });
+    // var barChart = new Chart(ctxBarChart, {
+    //   type: 'horizontalBar',
+    //   responsive: true,
+    //   options: {
+    //     rotation: Math.PI,
+    //     circumference: Math.PI,
+    //     animation: {
+    //       animateRotate: true,
+    //       animateScale: true
+    //     },
+    //     legend: {
+    //       display: false,
+    //     }
+    //   },
+    //   data: {
+    //     labels: votesRes.options,
+    //     datasets: [{
+    //       data: votesRes.votes,
+    //       backgroundColor: colors,
+    //       borderWidth: 0,
+    //     }]
+    //   },
+    // });
+    document.getElementById('title').classList.remove('text-hidden');
+  })
+
+  
+
+  function getRandomColor() {
+    return `rgba(${genNumber()}, ${genNumber()}, ${genNumber()}, 1)`
+  }
+
+  function genNumber() {
+    return Math.floor(Math.random() * 255);
+  }
+  </script>
+</body>
+</html>

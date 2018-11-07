@@ -1,3 +1,8 @@
+#Custom
+*.db
+conf.json
+sessions
+
 # Logs
 logs
 *.log
