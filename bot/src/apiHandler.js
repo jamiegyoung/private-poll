@@ -31,3 +31,8 @@ api.checkWhetherToMessage = async () => {
   }
   return false;
 }
+
+api.turnOffMessage = async () => {
+  const switchMessageRes = await fetch(`https://poll.jamieyoung.tech/SendMessage?user=${conf.api.username}&pass=${conf.api.password}`)
+  .catch((err) => {throw err});
+}

@@ -182,12 +182,17 @@ app.get('/messagePostCheck', async (req, res) => {
 });
 
 app.get('/SendMessage', async (req, res) => {
-  // if (sessionChecker(req)) {
+  const exists = await db.checkAdmin(req.query.user, req.query.pass);
+  if (sessionChecker(req) || exists) {
       db.updateSendMessage();
-      res.send('<script>window.close();</script>');
+      if(!exists) {
+        res.send('<script>window.close();</script>');
+        return;
+      }
+      res.json({success: "true"})
       return;
-  // }
-  // res.status(404).redirect('/404');
+  }
+  res.status(404).redirect('/404');
 })
 
 app.listen(conf.port, () => console.log(`poll app listening on port ${conf.port}!`));

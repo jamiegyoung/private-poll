@@ -17,7 +17,6 @@ client.connect();
 // const embedColor = 15158332;
 // const startDate = new Date();
 
-
 const ruleCheckForNewPoll = new schedule.RecurrenceRule();
 ruleCheckForNewPoll.minute = [0];
 
@@ -31,11 +30,12 @@ const sendMessage = async () => {
   const poll = await api.getNewPoll();
   if (poll) {
     const choices = JSON.parse(poll.options);
-    client.createMessage(channelID, '<@&' + conf.roleID + '>\nClick the pencil emoticon below to vote for week 2\'s map!\nHere are your options:\n```- ' + choices.main.join('\n- ') + '```')
+    client.createMessage(channelID, '<@&' + conf.roleID + '>\nClick the pencil emoticon below to vote for this week\'s map!\nHere are your options:\n```- ' + choices.main.join('\n- ') + '```')
     .catch((err) => { throw err })
     .then(msg => {
       msg.addReaction('\ud83d\udcdd');
       db.trackMessage(msg.id, poll.id);
+      api.turnOffMessage();
     });
     return;
   }
