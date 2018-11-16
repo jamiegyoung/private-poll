@@ -19,14 +19,16 @@ client.connect();
 
 
 const ruleCheckForNewPoll = new schedule.RecurrenceRule();
-ruleCheckForNewPoll.minute = [0,10,20,30,40,50];
+ruleCheckForNewPoll.minute = [0];
 
-// const jPollCheck = schedule.scheduleJob(ruleCheckForNewPoll, () => {
-//   // api.getCurrentPoll()
-// });
+const jPollCheck = schedule.scheduleJob(ruleCheckForNewPoll, async () => {
+  if(await api.checkWhetherToMessage()) {
+    sendMessage();
+  }
+});
 
-const testApi = async () => {
-  const poll = await api.checkForNewPoll();
+const sendMessage = async () => {
+  const poll = await api.getNewPoll();
   if (poll) {
     const choices = JSON.parse(poll.options);
     client.createMessage(channelID, '<@&' + conf.roleID + '>\nClick the pencil emoticon below to vote for week 2\'s map!\nHere are your options:\n```- ' + choices.main.join('\n- ') + '```')
@@ -56,7 +58,3 @@ client.on("messageReactionAdd", async (msg, emoji, userID) => {
   }
   return;
 })
-
-setTimeout(() => {
-  testApi();
-}, 2000);

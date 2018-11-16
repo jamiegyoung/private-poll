@@ -105,14 +105,21 @@ app.get('/CurrentPollOptions', async (req, res) => {
 })
 
 app.get('/CreateNewPoll', async (req, res) => {
-  const exists = await db.checkAdmin(req.query.user, req.query.pass);
-  if (exists) {
-    await db.createNewPoll({
-      main: ['Camellia feat. Nanahira - Seashore on the Moon [where the fisherman sings his lonely song] (https://osu.ppy.sh/b/1450182)',
-    'Equilbrium - Waldschrein [Startseite] (https://osu.ppy.sh/b/1467955)']
-    });
-    res.json({success: true});
+  if (sessionChecker(req)) {
+    if(req.query.options) {
+      try {
+        const optionsArray = JSON.parse(req.query.options);
+        await db.createNewPoll({
+          main: optionsArray
+        });
+        res.send('<script>window.close();</script>');
+        return;
+      } catch (e) {
+        res.status(400);
+      }
+    }
   }
+  res.status(404).redirect('/404');
 });
 
 app.get('/CreateVotingSession', async (req,res) => {
@@ -168,6 +175,19 @@ app.get('/logout', (req, res) => {
 
 app.get('/results/:pollID', (req, res) => {
   res.sendFile(__dirname + '/private/results/index.html');
+})
+
+app.get('/messagePostCheck', async (req, res) => {
+    res.json(await db.checkWhetherToSendVote())
+});
+
+app.get('/SendMessage', async (req, res) => {
+  // if (sessionChecker(req)) {
+      db.updateSendMessage();
+      res.send('<script>window.close();</script>');
+      return;
+  // }
+  // res.status(404).redirect('/404');
 })
 
 app.listen(conf.port, () => console.log(`poll app listening on port ${conf.port}!`));

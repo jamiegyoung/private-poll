@@ -48,6 +48,13 @@ database.getPollIDFromSession = async (sessionID) => (await dbGet('SELECT pollID
 
 database.checkPollStatus = async (pollID) => (await dbGet('SELECT status FROM polls WHERE id = ?', [pollID])).status;
 
+database.updateSendMessage = async () => {
+  const current = await dbGet('SELECT * FROM sendMessage');
+  if (current.sendMessage === 'false') dbRun('UPDATE sendMEssage SET sendMessage = "true"');
+  if (current.sendMessage === 'true') dbRun('UPDATE sendMEssage SET sendMessage = "false"');
+  return;
+}
+
 database.createNewSession = async () => {
   const id = uuidv4();
   const pollID = await database.getCurrentPoll();
@@ -62,6 +69,8 @@ database.getVotes = async (pollID) => {
   const parsedVotes = JSON.parse(voteRes.votes);
   return { votes: parsedVotes.votes, options: parsedOptions.main };
 }
+
+database.checkWhetherToSendVote = async () => await dbGet('SELECT * FROM sendMessage');
 
 const killSession = (sessionID) => dbRun('DELETE FROM votingSessions WHERE id = ?', [sessionID]).catch(err => { throw err; })
 
