@@ -39,7 +39,7 @@ database.addVote = async (sessionID, choice) => {
   if (checkChoiceInRange(pollID.pollID, choice)) {
     await killSession(sessionID);
     const parsedOldVotes = getNewVotes(oldVotes, choice);
-    dbRun('UPDATE votes SET votes = ?', [JSON.stringify(parsedOldVotes)]).catch(err => { throw err; })
+    dbRun('UPDATE votes SET votes = ? WHERE pollID = ?', [JSON.stringify(parsedOldVotes), pollID.pollID]).catch(err => { throw err; })
     return;
   }
 }
